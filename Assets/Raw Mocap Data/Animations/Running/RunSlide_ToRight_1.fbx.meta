@@ -179,7 +179,7 @@ ModelImporter:
       name: RunSlide_ToRight_1
       takeName: _29_a_U1_M_P_RunSlide_ToRight_R_Fb_p0_No_0_1
       firstFrame: 266
-      lastFrame: 331
+      lastFrame: 319
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -187,8 +187,8 @@ ModelImporter:
       loop: 0
       loopTime: 0
       loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
       keepOriginalPositionY: 1

@@ -7,17 +7,10 @@ public class CustomCharacterController : MonoBehaviour
     [System.Serializable]
     public class MovementSettings
     {
-        public float movementVelocity = 10;
-        public float turningVelocity = 100;
-        public float jumpVelocity = 12;
-        public float distanceToGround = 0.1f;
         public LayerMask ground;
-    }
-
-    [System.Serializable]
-    public class PhysicsSettings
-    {
-        public float downwardAcceleration = 0.7f;
+        public float movementVelocity = 6;
+        public float distanceToGround = 0.1f;
+        public float slideDuration = 2;
     }
 
     [System.Serializable]
@@ -27,81 +20,108 @@ public class CustomCharacterController : MonoBehaviour
     }
 
     public MovementSettings movementSettings = new MovementSettings();
-    public PhysicsSettings physicsSettings = new PhysicsSettings();
     public InputSettings inputSettings = new InputSettings();
-
-    private Quaternion targetRotation;
-    public Quaternion TargetRotation
-    {
-        get { return targetRotation; }
-    }
 
     private Rigidbody rigidBody;
     private Animator animator;
     private Vector3 velocity = Vector3.zero;
+    private float timeSinceLastSlide;
 
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-        targetRotation = transform.rotation;
+        animator.SetFloat("Speed", 0);
+        animator.SetBool("Jump", false);
+        animator.SetBool("Slide", false);
+        timeSinceLastSlide = Time.time - movementSettings.slideDuration;
+
     }
 
     void FixedUpdate()
     {
-        Move();
+        Debug.Log(animator.GetCurrentAnimatorStateInfo(0).shortNameHash + "  -------    " + Animator.StringToHash("Jump"));
         Jump();
-
-        rigidBody.velocity = transform.TransformDirection(velocity);
+        Slide();
+        rigidBody.velocity = velocity;
     }
 
     void Update()
     {
-        Turn();
+        Move();
     }
 
     private void Move()
     {
-        animator.SetFloat("Speed", Controller.leftStickVertical);
-
-        if (Mathf.Abs(Controller.leftStickVertical) > inputSettings.inputDelay)
+        if (IsMoving() && (IsGrounded() || IsJumping()))
         {
-            velocity.z = movementSettings.movementVelocity * Controller.leftStickVertical;
+            var direction = new Vector3(Controller.leftStickHorizontal, 0, Controller.leftStickVertical);
+            velocity = direction * movementSettings.movementVelocity;
+            var rotation = Quaternion.LookRotation(direction, Vector3.up);
+            transform.rotation = rotation;
+        }
+        else if (IsMoving())
+        {
+            var direction = new Vector3(Controller.leftStickHorizontal, -0.5f, Controller.leftStickVertical);
+            velocity = direction * movementSettings.movementVelocity;
+            var rotation = Quaternion.LookRotation(direction, Vector3.up);
+            transform.rotation = rotation;
+        }
+        else if (IsJumping() || IsGrounded())
+        {
+            velocity = Vector3.zero;
         }
         else
         {
-            velocity.z = 0;
+            velocity =  new Vector3(0,-0.5f,0);
         }
+
+        animator.SetFloat("Speed", velocity.magnitude);
     }
 
-    private void Turn()
+    private bool IsMoving()
     {
-        if (Mathf.Abs(Controller.leftStickHorizontal) > inputSettings.inputDelay)
-        {
-            targetRotation *= Quaternion.AngleAxis(movementSettings.turningVelocity * Controller.leftStickHorizontal * Time.deltaTime, Vector3.up);
-        }
-
-        transform.rotation = targetRotation;
+        return Mathf.Abs(Controller.leftStickVertical) > inputSettings.inputDelay || Mathf.Abs(Controller.leftStickHorizontal) > inputSettings.inputDelay;
     }
 
     private void Jump()
     {
-        if (Controller.buttonA && isGrounded())
+        if (Controller.buttonA && IsGrounded())
         {
-            velocity.y = movementSettings.jumpVelocity;
+            animator.SetBool("Jump", true);
         }
-        else if (!Controller.buttonA && isGrounded())
+        else if (IsGrounded())
         {
-            velocity.y = 0;
+            animator.SetBool("Jump", false);
+        }
+
+    }
+
+    private void Slide()
+    {
+        if (Controller.buttonB && CanStartSlideNow())
+        {
+            animator.SetBool("Slide", true);
+            timeSinceLastSlide = Time.time;
         }
         else
         {
-            velocity.y -= physicsSettings.downwardAcceleration;
+            animator.SetBool("Slide", false);
         }
     }
 
-    private bool isGrounded()
+    private bool CanStartSlideNow()
+    {
+        return Time.time - timeSinceLastSlide > movementSettings.slideDuration;
+    }
+
+    private bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, movementSettings.distanceToGround, movementSettings.ground);
+    }
+
+    private bool IsJumping()
+    {
+        return animator.GetCurrentAnimatorStateInfo(0).shortNameHash == Animator.StringToHash("Jump"); 
     }
 }

@@ -178,8 +178,8 @@ ModelImporter:
     - serializedVersion: 16
       name: RunJump_ToLeft_2
       takeName: _28_B_a_U1_M_P_RunJump_ToLeft_R_Fb_p0_No_0_2
-      firstFrame: 256
-      lastFrame: 341
+      firstFrame: 268
+      lastFrame: 336
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -187,8 +187,8 @@ ModelImporter:
       loop: 0
       loopTime: 0
       loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
       keepOriginalPositionY: 1

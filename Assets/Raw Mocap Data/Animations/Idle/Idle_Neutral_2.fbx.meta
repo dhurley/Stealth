@@ -182,14 +182,14 @@ ModelImporter:
     - serializedVersion: 16
       name: Idle_Neutral_2
       takeName: _87_a_U1_M_P_idle_Neutral__Fb_p0_No_1
-      firstFrame: 120
-      lastFrame: 1100
+      firstFrame: 148
+      lastFrame: 211
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
       cycleOffset: 0
       loop: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0

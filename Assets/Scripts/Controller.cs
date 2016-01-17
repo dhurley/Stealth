@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class Controller : MonoBehaviour {
+
+    public GameObject ButtonA;
+    public GameObject ButtonB;
 
     public static string controller;
 
@@ -24,28 +28,64 @@ public class Controller : MonoBehaviour {
     public static bool rightStickClick;
     public static bool startButton;
 
+    private Joystick_Controller leftJoystickController;
+
 	void Start () {
+        GameObject leftJoystick = GameObject.Find("Left_Joystick");
+        leftJoystickController = leftJoystick.GetComponent<Joystick_Controller>();
 	}
 	
 	void Update () {
-        foreach (string name in Input.GetJoystickNames())
+        if (Application.platform == RuntimePlatform.Android)
         {
-            controller = name.ToLower();
-        }
-
-        if (controller.Contains("xbox"))
-        {
-            Debug.Log("Xbox controller.");
-            useXboxInput();
+            UseTouchInput();
         }
         else
         {
-            Debug.Log("Default controller.");
-            useDefaultInput();
+
+            foreach (string name in Input.GetJoystickNames())
+            {
+                controller = name.ToLower();
+            }
+
+            if (controller.Contains("xbox"))
+            {
+                UseXboxInput();
+            }
+            else
+            {
+                UseDefaultInput();
+            }
         }
     }
 
-    private void useXboxInput()
+    private void UseTouchInput()
+    {
+        leftStickHorizontal = leftJoystickController.HorizontalInput;
+        leftStickVertical = leftJoystickController.VerticalInput;
+
+        UpdateLeftJoystickPosition(leftJoystickController);
+    }
+
+    private static void UpdateLeftJoystickPosition(Joystick_Controller leftJoystickController)
+    {
+        Touch[] touches = Input.touches;
+
+        if (Input.touchCount == 0)
+        {
+            leftJoystickController.ResetPosition();
+        }
+
+        for (int i = 0; i < Input.touchCount; i++)
+        {
+            if (touches[i].position.x < Screen.width / 3 && touches[i].position.y < Screen.height / 2)
+            {
+                leftJoystickController.UpdatePosition(touches[i].position);
+            }
+        }
+    }
+
+    private void UseXboxInput()
     {
         leftStickHorizontal = Input.GetAxis("Horizontal");
         leftStickVertical = Input.GetAxis("Vertical");
@@ -67,7 +107,7 @@ public class Controller : MonoBehaviour {
         startButton = Input.GetButton("Xbox Start Button");
     }
 
-    private void useDefaultInput()
+    private void UseDefaultInput()
     {
         leftStickHorizontal = Input.GetAxis("Horizontal");
         leftStickVertical = Input.GetAxis("Vertical");
@@ -87,5 +127,25 @@ public class Controller : MonoBehaviour {
         leftStickClick = Input.GetButton("Left Stick Click");
         rightStickClick = Input.GetButton("Right Stick Click");
         startButton = Input.GetButton("Start Button");
+    }
+
+    public void UIJumpButtonPressedDown()
+    {
+        buttonA = true;
+    }
+
+    public void UIJumpButtonPressedUp()
+    {
+        buttonA = false;
+    }
+
+    public void UISlideButtonPressedDown()
+    {
+        buttonB = true;
+    }
+
+    public void UISlideButtonPressedUp()
+    {
+        buttonB = false;
     }
 }
